@@ -1,8 +1,8 @@
-import os
-
-import yaml
+from pathlib import Path
+from typing import Optional
 from loguru import logger
 from pydantic import BaseModel
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Model(BaseModel):
@@ -26,7 +26,11 @@ class SecretsConfig(BaseModel):
     path: str
 
 
-class Config(BaseModel):
+class Config(BaseSettings):
+    model_config = SettingsConfigDict(
+        case_sensitive=False, env_file=None, extra="ignore"
+    )
+
     model: Model
     server: Server
     urls: Url
@@ -37,13 +41,24 @@ class ConfigHolder:
     def __init__(self):
         self.config = None
 
-    def load_config(self, path):
+    def load_config(self, path: Optional[Path] = None):
         logger.info("Loading config...")
-        logger.info("Current working directory {}", os.getcwd())
-        config_path = os.path.normpath(os.path.join(os.getcwd(), path))
-        with open(config_path) as f:
-            cfg = yaml.load(f, Loader=yaml.SafeLoader)
-        self.config = Config.model_validate(cfg)
+        logger.info("Current working directory {}", Path.cwd())
+
+        if path:
+            config_path = Path(path)
+            if not config_path.is_absolute():
+                config_path = Path.cwd() / config_path
+
+            with open(config_path, "r", encoding="utf-8") as f:
+                config_data = f.read()
+
+            import yaml
+
+            cfg = yaml.safe_load(config_data)
+            self.config = Config.model_validate(cfg)
+        else:
+            self.config = Config()
 
     def get_config(self) -> Config:
         return self.config

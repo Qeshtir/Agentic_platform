@@ -21,9 +21,9 @@ if __name__ == "__main__":
 
     tools = [get_weather, multiply, add, divide]
 
-    agent = SimpleAgent(config, tools)
+    agent = SimpleAgent(tools)
 
     agent.build_agent()
-    agent.print_agent()
+    agent.view_agent_graph()
     agent.invoke_agent()
     agent.invoke_agent(content="2 * 2")
