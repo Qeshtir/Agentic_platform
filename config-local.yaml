@@ -1,0 +1,13 @@
+model:
+  max_tokens: 10000
+  name: Qwen3-32B
+  timeout: 600
+server:
+  host: 0.0.0.0
+  port: 8090
+  threads: 1
+urls:
+  llm: "http://host:port/url"
+  tokens: "http://host:port"
+secrets:
+  path: ../../secrets/local
